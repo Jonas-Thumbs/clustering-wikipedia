@@ -1,0 +1,18 @@
+# Derived data too large to commit (full article text, link graphs).
+# Regenerated from data/raw/ (not in this repo) via scripts/, or fetched
+# from shared storage -- see README for the fetch step once it exists.
+data/derived/
+
+# Raw dump files (fetch with scripts/download_dump.sh) and the category
+# index built from them (scripts/build_category_index.py) -- tens of GB,
+# never committed. Locally these may be symlinks into a sibling data/
+# folder rather than real downloads; no trailing slash on data/raw, since
+# a trailing-slash pattern only matches a real directory, not a symlink
+# (which is what this is on this machine) -- without this it silently
+# leaks the symlink itself (and the absolute local path inside it) into
+# the next `git add -A`.
+data/raw
+data/processed/category_index.db
+
+__pycache__/
+*.pyc
