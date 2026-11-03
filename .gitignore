@@ -16,3 +16,13 @@ data/processed/category_index.db
 
 __pycache__/
 *.pyc
+
+
+# virtual environments
+.venv/
+venv/
+env/
+
+pyrefly.toml
+.cache/
+.vscode/
