@@ -46,29 +46,37 @@ We implemented two complementary vectorization strategies:
 
 ---
 
-### Slide 4: Unsupervised Clustering (The $2 \times 2$ Matrix) & Technical Pivot
+### Slide 4: Unsupervised Clustering (The $2 \times 2$ Matrix) & The "Clustering Space" Discussion
 
 We evaluated 4 combinations ($K$-Means vs. HDBSCAN $\times$ SVD vs. SBERT):
 
 * **Spherical $K$-Means ($K=12\text{--}15$):**
-  * Partitions space into convex regions on unit-normalized vectors (cosine geometry).
-  * Guarantees 100% coverage with balanced cluster allocations.
-* **HDBSCAN Pivot (Great Talking Point / "Insight"):**
-  * *The Issue:* Running HDBSCAN directly on raw 100-d SVD or 384-d SBERT failed due to the *curse of dimensionality* (distance concentration made densities almost uniform, collapsing ~95%+ of points into a single cluster).
-  * *The Solution:* We shifted HDBSCAN to operate on non-linear **UMAP 2D projections**. In 2D manifold space, density boundaries are preserved, producing clean, separable clusters with sensible outlier detection.
+  * Operates directly on the **full high-dimensional semantic space** (100-d SVD / 384-d SBERT) normalized on the unit hypersphere (cosine geometry).
+  * Guarantees 100% coverage with balanced partitions.
+  * **Visual Note / 2D Overlap:** In 2D UMAP scatter plots, $K$-Means clusters visually overlap because projecting 384-d down to 2D squashes orthogonal semantic dimensions. Clusters separated in high dimensions can appear adjacent when compressed into 2D.
+
+* **HDBSCAN Pivot & Parameter Tuning (Great Talking Point / "Insight"):**
+  * *The High-Dim Dilemma:* Running density-based clustering on raw 100-d or 384-d embeddings fails due to the *curse of dimensionality* (distance concentration causes Euclidean distances to become roughly uniform, collapsing ~95%+ of points into noise or a single cluster).
+  * *The 2D Solution:* Running HDBSCAN on non-linear **UMAP 2D projections** restores meaningful density gradients.
+  * *From `eom` to `leaf` Selection:* Initially, default `cluster_selection_method='eom'` (Excess of Mass) formed 2–3 giant macro-clusters on continuous manifolds like Arizona. Switching to **`cluster_selection_method='leaf'`** forces HDBSCAN to extract the finest branch leaves of the condensed tree, discovering **17–22 fine-grained, localized topic sub-clusters** across corpora.
+  * *Methodological Comparison (Presentation Highlight):* 
+    * Is running $K$-Means in $\mathbb{R}^{384}$ vs. HDBSCAN in $\mathbb{R}^2$ unfair? Yes, they operate in different spaces!
+    * **Future Improvement / Best Practice (BERTopic style):** Cluster in an intermediate 10-dimensional UMAP space ($\mathbb{R}^{10}$) — high enough to preserve complex semantic relationships, yet low enough to enable reliable density estimation.
 
 ---
 
 ### Slide 5: Quantitative Preliminary Results
 
-| Corpus | Articles | $K$-Means $K$ | HDBSCAN (SVD 2D) | HDBSCAN (SBERT 2D) | HDBSCAN Silhouette |
+| Corpus | Articles | $K$-Means $K$ | HDBSCAN (SVD 2D, `leaf`) | HDBSCAN (SBERT 2D, `leaf`) | Non-Noise Silhouette |
 |---|---|---|---|---|---|
-| `arizona` | 1,455 | 15 | 3 clusters (0% noise) | 2 clusters (1.5% noise) | **0.35 – 0.53** |
-| `computer_science` | 1,597 | 15 | 10 clusters (5.1% noise) | 15 clusters (18.9% noise) | **0.43 – 0.46** |
-| `literature` | 1,424 | 15 | 5 clusters (0.5% noise) | 2 clusters (0% noise) | **0.51 – 0.77** |
-| `vital_level_3` | 999 | 12 | 16 clusters (18.1% noise) | 9 clusters (19.9% noise) | **0.31 – 0.52** |
+| `arizona` | 1,455 | 15 | **18 clusters** (32.0% noise) | **21 clusters** (35.0% noise) | **0.50 – 0.53** |
+| `computer_science` | 1,597 | 15 | **22 clusters** (31.6% noise) | **19 clusters** (38.4% noise) | **0.53 – 0.54** |
+| `literature` | 1,424 | 15 | **20 clusters** (33.8% noise) | **19 clusters** (38.6% noise) | **0.56 – 0.58** |
+| `vital_level_3` | 999 | 12 | **17 clusters** (20.6% noise) | **13 clusters** (28.6% noise) | **0.48 – 0.50** |
 
-* **Visual Evidence:** High-resolution 4-panel scatter plots generated in `data/derived/figures/{corpus}_umap_clusters.png` ready to be dropped into the presentation.
+* **Visual Evidence:** 
+  * High-resolution 4-panel scatter plots generated in `data/derived/figures/{corpus}_umap_clusters.png` ready to be dropped into the presentation slides.
+  * Standalone interactive browser tool in `scripts/interactive_explorer/web/index.html` for live demonstrations and point-level article inspection.
 
 ---
 

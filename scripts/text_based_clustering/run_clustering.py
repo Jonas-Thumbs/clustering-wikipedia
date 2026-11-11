@@ -46,12 +46,13 @@ K_VALUES = {
 }
 
 # HDBSCAN parameters for 2D UMAP space
-# eom (excess of mass) gives more stable macro-clusters vs. leaf which over-fragments
+# 'leaf' extracts the fine-grained leaves of the condensed tree hierarchy,
+# avoiding giant macro-clusters on continuous manifolds.
 HDBSCAN_PARAMS = dict(
     min_cluster_size=25,
     min_samples=5,
     metric="euclidean",
-    cluster_selection_method="eom",
+    cluster_selection_method="leaf",
 )
 
 
