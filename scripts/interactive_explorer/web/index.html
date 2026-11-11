@@ -281,7 +281,7 @@
           Cursor: (<span id="diag-cx">-</span>, <span id="diag-cy">-</span>)<br>
           Target: (<span id="diag-tx">-</span>, <span id="diag-ty">-</span>)<br>
           Delta: <span id="diag-delta" style="font-weight:700;">-</span> px<br>
-          Crosshair: <span id="diag-mode" style="color:var(--accent);font-weight:700;">ON</span>
+          Crosshair: <span id="diag-mode" style="color:var(--text-muted);font-weight:700;">OFF</span>
         </div>
       </div>
     </aside>
@@ -336,7 +336,7 @@
     let hoveredPoint = null;
     let hoveredScreen = null;
     let mousePos = { x: -1, y: -1 };
-    let showCrosshair = true;
+    let showCrosshair = false;
     let bounds = { minX: 0, maxX: 1, minY: 0, maxY: 1 };
 
     window.addEventListener("keydown", (e) => {
